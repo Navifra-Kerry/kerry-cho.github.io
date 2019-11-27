@@ -12,13 +12,13 @@
 
 # theme                  : "minimal-mistakes-jekyll"
 # remote_theme           : "mmistakes/minimal-mistakes"
-minimal_mistakes_skin    : "air" # "air", "aqua", "contrast", "dark", "dirt", "neon", "mint", "plum", "sunrise"
+minimal_mistakes_skin    : "dark" # "air", "aqua", "contrast", "dark", "dirt", "neon", "mint", "plum", "sunrise"
 
 # Site Settings
 locale                   : "en-US"
 title                    : "Computer Vision Technology Blog"
 title_separator          : "-"
-name                     : "Siddhartha"
+name                     : "DaeHee"
 description              : "On this blog, i share ML related things that i find cool."
 url                      : "https://kerry.github.io" # the base hostname & protocol for your site e.g. "https://mmistakes.github.io"
 # baseurl                  : "/blog" # the subpath of your site, e.g. "/blog"
@@ -109,7 +109,7 @@ analytics:
 # Site Author
 author:
   name             : "DaeHee-Cho"
-  avatar           : "/assets/images/bio-photo.jpg" # path of avatar image, e.g. "/assets/images/bio-photo.jpg"
+  avatar           : "/assets/images/DaeHee-Cho.png" # path of avatar image, e.g. "/assets/images/bio-photo.jpg"
   # bio              : "Experienced Scientist with a demonstrated history of working in the Defense & Space industry."
   bio              : "Computer Scientist"
   location         : "korea"
