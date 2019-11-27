@@ -1,6 +1,6 @@
 ---
 layout: archive
-title: "My Github Repos"
+title: "Github Repos"
 author_profile: true
 permalink: /my_repos/
 # header:

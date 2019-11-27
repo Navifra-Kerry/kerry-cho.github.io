@@ -19,7 +19,7 @@ locale                   : "en-US"
 title                    : "Computer Vision Technology Blog"
 title_separator          : "-"
 name                     : "DaeHee"
-description              : "On this blog, i share ML related things that i find cool."
+description              : "On this blog, i share Computer Scientis related things that i find cool."
 url                      : "https://kerry.github.io" # the base hostname & protocol for your site e.g. "https://mmistakes.github.io"
 # baseurl                  : "/blog" # the subpath of your site, e.g. "/blog"
 repository               : "kerry-Cho/SemanticSegmentation-Libtorch" # GitHub username/repo-name e.g. "mmistakes/minimal-mistakes"
@@ -138,7 +138,7 @@ author:
       # url: "https://instagram.com/"
     - label: "LinkedIn"
       icon: "fab fa-linkedin-in"
-      #url: "https://www.linkedin.com/in/siddhartha-isro/"
+      url: "https://www.linkedin.com/in/kerry-cho-3ab8b4183/"
 
 # Site Footer
 footer:
