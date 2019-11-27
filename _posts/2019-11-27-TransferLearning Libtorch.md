@@ -8,7 +8,7 @@ header:
 안녕하세요. 조대희 입니다.
 블로그 방문을 환영 합니다.
 
-첫 번째로 소개 해드릴 내용은 Pytorch의 C++ Frontend 인 LibTorch를 활용하여 TransferLearning을 하는 법에 대한 내용 입니다.
+첫 번째로 소개 해드릴 내용은 PyTorch의 C++ Frontend 인 LibTorch를 활용하여 TransferLearning을 하는 법에 대한 내용 입니다.
 모든 소스는 여기 저장소에 있습니다. 
 
 그럼 지금 부터 시작 합니다.
@@ -45,7 +45,7 @@ transfer-learning
     -install.bat
 ```
 
-<img src="https://github.com/kerry-Cho/transfer-learning/blob/master/Images/Install.png" alt="image"> 
+<img src="{{ site.url }}{{ site.baseurl }}/assets/images/transferlearning/Install.png" alt="image">
     
 # Network Model
  Resnet 모델을 사용 하였습니다. 해당 모델은 Torchvision C++ 모델을 가져와 사용 하였습니다. 
@@ -74,18 +74,18 @@ script_module.save('resnet18_Python.pt')
 ```
 
 ```C++
-# Load Parameter
+//Load Parameter
 ResNet18 network;
 torch::load(network, "resnet18_Python.pt");
 ```
 
-* FC Layer 
-클래스 갯수를 변경 학습 시킬 모델 만큼 변경 해주어야 합니다.
-Python과 다르게 C++에서는 할당되 등록을 별도로 해주어야 하고 새로 등록 하기 위해서는 등록 된 파라메테를 해제 후 제 등록 해야합니다.
+* FC Layer  
+클래스 갯수를 학습 시킬 모델 만큼 변경 해주어야 합니다.
+Python과 다르게 C++에서는 할당 및 등록을 별도로 해주어야 하고 새로 등록 하기 위해서는 등록 된 파라메테를 해제 후 제 등록 해야합니다.
 코드는 아래와 같습니다.
 
+Python
 ```Python
-  #Python코드는 아래와 같습니다.
   model_ft = models.resnet18(pretrained=True)
   num_ftrs = model_ft.fc.in_features
   # Here the size of each output sample is set to 2.
@@ -93,18 +93,22 @@ Python과 다르게 C++에서는 할당되 등록을 별도로 해주어야 하�
   model_ft.fc = nn.Linear(num_ftrs, 2)
 ```
 
+C++
 ```c++
   ResNet18 network;
 	torch::load(network, "../../Model/resnet18_Python.pt");
 
+  //해제
 	network->unregister_module("fc");
 
+  //SharedPtr 다시 생성
 	network->fc = torch::nn::Linear(torch::nn::LinearImpl(512, 2));	
 
+  //등록
 	network->register_module("fc", network->fc);
 ```
 
-# DataSet
+# DataSet  
 * 데이터 셋은 Torch 모델에서 제공 하는 데이터셋 클래스를 상속 받은 후 두가지 함수를 Overriding 해주셔야 합니다.
 
 
@@ -154,7 +158,7 @@ struct Example {
   Target target;
 };
 ```
-* image Arguments
+* image Arguments  
 이미지 입력 전처리의 경우 OpenCV를 사용 하였습니다.
 
 ```c++
@@ -181,7 +185,7 @@ torch::Tensor read_data(std::string location) {
 }
 ```
 
-* 데이터 셋 입력 받기
+* 데이터 셋 입력 받기  
 데이터 셋의 경우 MapFile 형태로 입력을 받아 한줄 한줄 Parsing하여 사용 하였습니다.
 
 ```c++
@@ -228,8 +232,9 @@ torch::Tensor read_data(std::string location) {
 	stream.close();
 ```
 
-* Label to Tensor
-라벨의 경우 클래스 인덱스로 입력 해주시면 됩니다 0,1,2,...
+* Label to Tensor  
+라벨의 경우 클래스 인덱스로 입력 해주시면 됩니다  
+
 ```c++
 torch::Tensor read_label(int label) {
 	/*
