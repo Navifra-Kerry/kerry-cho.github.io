@@ -73,8 +73,8 @@ script_module = torch.jit.trace(model, example_input)
 script_module.save('resnet18_Python.pt')
 ```
 
+Load Parameter c++
 ```C++
-//Load Parameter
 ResNet18 network;
 torch::load(network, "resnet18_Python.pt");
 ```
