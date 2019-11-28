@@ -9,7 +9,7 @@ header:
 블로그 방문을 환영 합니다.
 
 첫 번째로 소개 해드릴 내용은 PyTorch의 C++ Frontend 인 LibTorch를 활용하여 TransferLearning을 하는 법에 대한 내용 입니다.
-모든 소스는 여기 저장소에 있습니다. 
+모든 소스는 [여기](https://github.com/kerry-Cho/transfer-learning-Libtorch) 저장소에 있습니다. 
 
 그럼 지금 부터 시작 합니다.
 
@@ -304,7 +304,7 @@ for (auto& batch : *train_loader)
 }
 ```
 
-* Optimizer
+* Optimizer  
 Optimizer는 해당 예제의 이해를 돕기 위해 트레이너라 이야기 하고 자세한 내용은 생략 하겠습니다.
 Optimizer 종류에 따라 입력 받는 입력 같이 다르지만 공통으로 학습 시킬 파라메터를 입력 받습니다. 
 학습 시키지 않길 원하는 파라메터의 경우 set_requires_grad 옵션을 false로 만들어 주어야 그래디언트를 기록 하지 않기 때문에 메모리를 절약 할 수 있습니다.
@@ -337,6 +337,103 @@ for (auto& param : params)
 torch::optim::Adam opt(trainable_params, torch::optim::AdamOptions(1e-3 /*learning rate*/));
 ```
 
-* Training Loop
+* Training Loop  
+이제 거의 온것 같습니다. 트레이닝에 대한 설명만을 남았는데요. Training Loop와 test Loop의 차이는 <torch::NoGradGuard no_grad>의
+선언에 따라 다릅니다. 평가 시에는 Weight 값이 변경 되면 되지 않기 떄문에 꼭 <torch::NoGradGuard no_grad> 선언 후 사용 해야 합니다.
+
+```c++
+network->train();
+
+int batch_index = 0;
+
+float mse = 0;
+float Acc = 0.0;
+
+for (auto& batch : *data_loader) {
+	auto data = batch.data;
+	auto targets = batch.target.squeeze();
+
+	// Should be of length: batch_size
+	data = data.to(torch::kF32); //1.3 버전의 경우 데이터 타입이 맞지 않을 경우 알수 없는 예외를 발생 시키기 때문에 타입을 정확히 기억 해야해요!
+	targets = targets.to(torch::kInt64);
+
+	/* 
+	가장 실수를 많이 하실 것 같은 부분인데요. PyTorch의 경우 CPU <-> GPU 간의 데이터 이동이 쉽게 구현이 되어 있고 하나의 클래스로 둘다 사용 하기 떄문에 
+	데이터 이동 후 대입을 꼭 해주셔야 연산시에 오류가 발생되지 않습니다. 
+	데이터의 디바이스 타입이 다를 경우 연산시 오류가 발생 됩니다.
+	*/
+	data = data.to(device_type);
+	targets = targets.to(device_type);
+
+	optimizer.zero_grad();
+
+	auto output = network->forward(data);
+
+	/*
+	Classification의 경우 Cross_EntropyLoss를 구하여 사용하게 되는데요 안타깝게도 현재 1.3버전에서는 해당 함수가 C++ 버전으로 존재 하지 않습니다
+	1.4 버전에서는 추가될 예정으로 알고 있어요.
+	Cross_EntropyLoss는 Output Data에 log_softmax 취한 후 target 값과 비교 하면 됩니다.
+	*/
+	auto loss = torch::nll_loss(torch::log_softmax(output, 1), targets);
+
+	loss.backward();
+	optimizer.step();
+
+	/*
+	정확도를 구하기 위해서 output값에서 가장 확률이 높은 값을 구한 후 targets값가 비교 하여 갯수를 취합합니다.
+	*/
+	auto acc = output.argmax(1).eq(targets).sum();
+
+	Acc += acc.template item<float>();
+	mse += loss.template item<float>();
+
+	batch_index += 1;
+}
+
+mse = mse / float(batch_index); // Take mean of loss
+std::cout << "Epoch: " << index << ", " << "Accuracy: " << Acc / dataset_size << ", " << "MSE: " << mse << std::endl;
+```
+
+* Test Loop  
+Test Loop 는 Training Loop와 동일 한데요. 하나만 기억 할 것이 torch::NoGradGuard no_grad 의 선언 입니다.
+해당 키워드를 선언하지 않을 경우 Network의 weight 값이 변할 수 있기 떄문에 매번 결과가 변할 수 있습니다.
+꼭 선언 하셔야 되요!
+
+```c++
+torch::NoGradGuard no_grad;
+network->eval();
+
+float Loss = 0, Acc = 0;
+
+for (const auto& batch : *loader) {
+	auto data = batch.data;
+	auto targets = batch.target.squeeze();
+
+	data = data.to(torch::kF32);
+	targets = targets.to(torch::kInt64);
+
+	data = data.to(device_type);
+	targets = targets.to(device_type);
+
+	auto output = network->forward(data);
+
+	auto loss = torch::nll_loss(torch::log_softmax(output, 1), targets);
+	auto acc = output.argmax(1).eq(targets).sum();
+	Loss += loss.template item<float>();
+	Acc += acc.template item<float>();
+}
+
+std::cout << "Test Loss: " << Loss / data_size << ", Acc:" << Acc / data_size << std::endl;
+
+if (Acc / data_size > best_accuracy) {
+	best_accuracy = Acc / data_size;
+	std::cout << "Saving model" << std::endl;
+	torch::save(network, "model.pt");
+}
+```
 
 ## Conclusion
+지금까지 LibTorch를 이용한 Transferlearning에 대해서 이야기를 하였습니다. 처음 쓰는 글이라 많이 부족 한데요. 여기 까지 읽어 주신것을 감사 드립니다.
+Transferlearning 다른 좋은 글들이 많아서 설명을 하지 않았습니다. 
+다음 이야기는 LiTorch를 이용한 Segmantation을 통해 찾아 오겠습니다.
+감사합니다.
