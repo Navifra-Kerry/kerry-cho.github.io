@@ -14,7 +14,7 @@ header:
 그럼 지금 부터 시작 합니다.
 
 # Introdution
-Libtorch는 Pytorch의 C++ Frontend로 Python API와 동일 구조의 인터페이스를 가집니다. 현재까지는 Python 과 동일 한 수준의 API를 
+Libtorch는 PyTorch의 C++ Frontend로 Python API와 동일 구조의 인터페이스를 가집니다. 현재까지는 Python 과 동일 한 수준의 API를 
 제공 하지 않지만 1.4 이후에는 더욱 더 많은 API 제공 할 것으로 보입니다. 
 ```c++
 1.3 이하 버전에서는 아래의 코드 처럼 예외처리 시에 unknow Exception이라는 메세지를 많이 보게 됩니다...
@@ -81,11 +81,11 @@ torch::load(network, "resnet18_Python.pt");
 
 * FC Layer  
 클래스 갯수를 학습 시킬 모델 만큼 변경 해주어야 합니다.
-Python과 다르게 C++에서는 할당 및 등록을 별도로 해주어야 하고 새로 등록 하기 위해서는 등록 된 파라메테를 해제 후 제 등록 해야합니다.
+Python과 다르게 C++에서는 할당 및 등록을 별도로 해주어야 하고 새로 등록 하기 위해서는 등록 된 파라메터를 해제 후 제 등록 해야합니다.
 코드는 아래와 같습니다.
 
 Python
-```Python
+```python
   model_ft = models.resnet18(pretrained=True)
   num_ftrs = model_ft.fc.in_features
   # Here the size of each output sample is set to 2.
@@ -186,7 +186,7 @@ torch::Tensor read_data(std::string location) {
 ```
 
 * 데이터 셋 입력 받기  
-데이터 셋의 경우 MapFile 형태로 입력을 받아 한줄 한줄 Parsing하여 사용 하였습니다.
+데이터 셋의 경우 MapFile 형태로 입력을 받아 Parsing하여 사용 하였습니다.
 
 ```c++
 #Mapfile 
@@ -253,6 +253,90 @@ torch::Tensor read_label(int label) {
 ```
 
 * Data Loader
+데이터 로더의 경우 torch::data::make_data_loader 함수를 이용 해 만들게 되는데요. 
+해당 함수의 경우 템플릿 함수로 샘플러 오버 로딩이 가능 하게 끔 되어 있습니다. 저는 RanmdomSampler를 사용 하였습니다.
+해당 함수를 사용 하면 StatefulDataLoader라는 Class를 생성 하며 리턴 하게 됩니다. 
 
+StatefulDataLoader 의 경우 선언 부에 보면 DataLoaderBase를 상속해 Begin(), End() 멤버 함수가 선언 되어 있어 범위 지정 for Loop를 사용 하게 끔 구현되어 있습니다.
+
+```c++
+
+// 함수 선언 부 
+template <typename Dataset>
+class StatefulDataLoader : public DataLoaderBase<
+                               Dataset,
+                               typename Dataset::BatchType::value_type,
+                               typename Dataset::BatchRequestType> {
+ public:
+  using super = DataLoaderBase<
+      Dataset,
+      typename Dataset::BatchType::value_type,
+      typename Dataset::BatchRequestType>;
+  using typename super::BatchRequestType;
+  ....
+
+};
+
+//사용시 아래와 같이 사용 합니다.
+auto train_dataset = ImageNetDataSet("../../sample/train/train_map.txt") 
+	.map(torch::data::transforms::Stack<>());// Stack으로 하지 않을 경우 Batch Size 만큼 Vector로 리턴 해주어 다시 For를 진행 하거나 별도의 처리를 해야 합니다.
+const size_t train_dataset_size = train_dataset.size().value();
+
+//inferrenc Data Set의 경우 기본 샘플러를 사용 하시면 됩니다.
+auto train_loader = torch::data::make_data_loader<torch::data::samplers::RandomSampler>(std::move(train_dataset),
+	torch::data::DataLoaderOptions().batch_size(kTrainBatchSize).workers(0));// Batch_size의 경우 컴퓨터 성능에 맞게 끔 적절하게 조정 하셔야 해요.많이하면 다운....
+// workers의 갯수에 따라서 데이터 로딩 속도가 달라지는데요 컴퓨터의 성능을 감안해서 설정하시면 됩니다. 
+// 해당 예제의 데이터의 수가 그리 많지 않기 떄문에 workers값은 0으로 설정 했어요
+
+
+auto test_dataset = ImageNetDataSet("../../sample/test/test_map.txt")
+	.map(torch::data::transforms::Stack<>());
+const size_t test_dataset_size = test_dataset.size().value();
+auto test_loader = torch::data::make_data_loader(std::move(test_dataset), kTestBatchSize);
+
+for (auto& batch : *train_loader) 
+{
+	//Stack 옵션을 설정 하지 안을 경우 여기서 다시 범위 지정 For를 해야 합니다.
+	//for(auto& b : batch) 이렇게 쓰시라고 하는게 아니라 옵션 설명을 위한 코드 입니다.
+	auto data = batch.data;
+	auto targets = batch.target.squeeze();
+	
+}
+```
+
+* Optimizer
+Optimizer는 해당 예제의 이해를 돕기 위해 트레이너라 이야기 하고 자세한 내용은 생략 하겠습니다.
+Optimizer 종류에 따라 입력 받는 입력 같이 다르지만 공통으로 학습 시킬 파라메터를 입력 받습니다. 
+학습 시키지 않길 원하는 파라메터의 경우 set_requires_grad 옵션을 false로 만들어 주어야 그래디언트를 기록 하지 않기 때문에 메모리를 절약 할 수 있습니다.
+
+파라메터의 입력은 std::vector<torch::Tensor> 형태로 입력 받습니다.
+예제코드는 아래와 같습니다.
+
+```c++
+std::vector<torch::Tensor> trainable_params;
+auto params = network->named_parameters(true /*recurse*/);
+/* 
+해당 함수는 모든 파라메터는 Key와, Value 형태의 컨테이너로 리턴 합니다. 
+recurse 옵션을 true 해주어야 하위 모델 까지 반납해줘요 false로하면 의도하지 않은 결과를 발생 할거에요.
+*/
+for (auto& param : params)
+{
+	auto layer_name = param.key();
+	if ("fc.weight" == layer_name || "fc.bias" == layer_name)//학습 시킬 대상을 명확히 알고 있기 때문에 Key이름을 비교해 해당 Key 값만 Vector에 담습니다. 
+	{
+		param.value().set_requires_grad(true);
+		trainable_params.push_back(param.value());
+	}
+	else
+	{
+		param.value().set_requires_grad(false);
+	}
+}
+
+//본 예제에서는 Adam을 사용 하였습니다. trainable_params 파라메터와 learning rate만 설정 하였습니다.
+torch::optim::Adam opt(trainable_params, torch::optim::AdamOptions(1e-3 /*learning rate*/));
+```
+
+* Training Loop
 
 ## Conclusion
