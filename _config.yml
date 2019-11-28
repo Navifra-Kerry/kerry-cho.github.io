@@ -20,7 +20,7 @@ title                    : "Computer Vision Technology Blog"
 title_separator          : "-"
 name                     : "DaeHee"
 description              : "On this blog, i share Computer Scientis related things that i find cool."
-url                      : "https://kerry.github.io" # the base hostname & protocol for your site e.g. "https://mmistakes.github.io"
+url                      : "https://kerry-cho.github.io" # the base hostname & protocol for your site e.g. "https://mmistakes.github.io"
 # baseurl                  : "/blog" # the subpath of your site, e.g. "/blog"
 repository               : "kerry-Cho/SemanticSegmentation-Libtorch" # GitHub username/repo-name e.g. "mmistakes/minimal-mistakes"
 # site:
