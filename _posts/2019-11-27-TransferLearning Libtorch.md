@@ -109,7 +109,7 @@ C++
 ```
 
 # DataSet  
-* 데이터 셋은 Torch 모델에서 제공 하는 데이터셋 클래스를 상속 받은 후 두가지 함수를 Overriding 해주셔야 합니다.
+* 데이터 셋은 Torch 모델에서 제공 하는 데이터셋 클래스를 상속 받은 후 두가지 함수를 오버라이딩 해주셔야 합니다.
 
 
 ```c++
@@ -252,11 +252,10 @@ torch::Tensor read_label(int label) {
 }
 ```
 
-* Data Loader
+* Data Loader  
 데이터 로더의 경우 torch::data::make_data_loader 함수를 이용 해 만들게 되는데요. 
 해당 함수의 경우 템플릿 함수로 샘플러 오버 로딩이 가능 하게 끔 되어 있습니다. 저는 RanmdomSampler를 사용 하였습니다.
 해당 함수를 사용 하면 StatefulDataLoader라는 Class를 생성 하며 리턴 하게 됩니다. 
-
 StatefulDataLoader 의 경우 선언 부에 보면 DataLoaderBase를 상속해 Begin(), End() 멤버 함수가 선언 되어 있어 범위 지정 for Loop를 사용 하게 끔 구현되어 있습니다.
 
 ```c++
@@ -305,9 +304,10 @@ for (auto& batch : *train_loader)
 ```
 
 * Optimizer  
-Optimizer는 해당 예제의 이해를 돕기 위해 트레이너라 이야기 하고 자세한 내용은 생략 하겠습니다.
-Optimizer 종류에 따라 입력 받는 입력 같이 다르지만 공통으로 학습 시킬 파라메터를 입력 받습니다. 
-학습 시키지 않길 원하는 파라메터의 경우 set_requires_grad 옵션을 false로 만들어 주어야 그래디언트를 기록 하지 않기 때문에 메모리를 절약 할 수 있습니다.
+  Optimizer는 해당 예제의 이해를 돕기 위해 트레이너라 이야기 하고 자세한 내용은 생략 하겠습니다.
+  Optimizer 종류에 따라 입력 받는 입력 같이 다르지만 공통으로 학습 시킬 파라메터를 입력 받습니다. 
+  학습 시키지 않길 원하는 파라메터의 경우 set_requires_grad 옵션을 false로 만들어 주어야 그래디언트를 기록 하지 않기 때문에 메모리를 절약 할 수   
+  있습니다.
 
 파라메터의 입력은 std::vector<torch::Tensor> 형태로 입력 받습니다.
 예제코드는 아래와 같습니다.
@@ -338,8 +338,8 @@ torch::optim::Adam opt(trainable_params, torch::optim::AdamOptions(1e-3 /*learni
 ```
 
 * Training Loop  
-이제 거의 온것 같습니다. 트레이닝에 대한 설명만을 남았는데요. Training Loop와 test Loop의 차이는 <torch::NoGradGuard no_grad>의
-선언에 따라 다릅니다. 평가 시에는 Weight 값이 변경 되면 되지 않기 떄문에 꼭 <torch::NoGradGuard no_grad> 선언 후 사용 해야 합니다.
+이제 거의 다 된 것 같습니다. 트레이닝에 대한 설명만을 남았는데요. Training Loop와 test Loop의 차이는 torch::NoGradGuard의
+선언에 따라 다릅니다. 평가 시에는 Weight 값이 변경 되면 되지 않기 때문에 꼭 torch::NoGradGuard 선언 후 사용 해야 합니다.
 
 ```c++
 network->train();
@@ -434,6 +434,6 @@ if (Acc / data_size > best_accuracy) {
 
 ## Conclusion
 지금까지 LibTorch를 이용한 Transferlearning에 대해서 이야기를 하였습니다. 처음 쓰는 글이라 많이 부족 한데요. 여기 까지 읽어 주신것을 감사 드립니다.
-Transferlearning 다른 좋은 글들이 많아서 설명을 하지 않았습니다. 
-다음 이야기는 LiTorch를 이용한 Segmantation을 통해 찾아 오겠습니다.
+Transferlearning 다른 좋은 글들이 많아서 자세히 설명을 하지 않았습니다. 
+다음 이야기는 LibTorch를 이용한 Segmantation을 통해 찾아 오겠습니다.
 감사합니다.
