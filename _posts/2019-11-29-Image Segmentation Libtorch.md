@@ -586,3 +586,85 @@ torch::data::Example<> COCODataSet::get(size_t idx)
 	return { img_tensor.clone(), target.clone() };
 }
 ```
+
+* Data Loader  & Opimizer  
+
+Data Loader Opimizer의 상세한 정보는 [TransferLearning](https://kerry-cho.github.io/TransferLearning-Libtorch/) 포스트를 참고 하시면 됩니다.
+다른 점만 설명 하겠습니다.  
+  
+Segmentation에서는 Backbone이 존재하고 해당 모델의 경우 Aux 라는 옵션이 있기 때문에 그에 따라 Optimizer에서 학습 해야 하는  
+학습 파라메터가 조금 씩 다릅니다.
+
+```c++
+
+/*
+TransferLearning 크게 다른 점은 Backbone 파라메터와 _classifier의 파라메터 
+aux_classifier파라메터를 각각 std::vector<torch::Tensor> 담아 주어야 한다는 점입니다.
+해당 예제는 aux_classifier를 사용 하지 않기 때문에 생략 하였습니다.
+*/
+std::vector<torch::Tensor> trainable_params;	
+auto params = segnet->_classifier->named_parameters(true /*recurse*/);
+for (auto& param : params)
+{
+	auto layer_name = param.key();
+
+	if (param.value().requires_grad())
+	{
+		trainable_params.push_back(param.value());
+	}
+}
+
+params = segnet->_backbone->named_parameters(true /*recurse*/);
+for (auto& param : params)
+{
+	if (param.value().requires_grad())
+	{
+		trainable_params.push_back(param.value());
+	}
+}
+
+torch::optim::SGD optimizer(trainable_params, torch::optim::SGDOptions(0.01 /*learning rate*/).momentum(0.9).weight_decay(1e-4));
+```
+
+
+* Training Loop & test Loop
+
+학습과 테스트는 TransferLearning 크게 다르지 않습니다. 따라서 Loss를 구하는 함수에 대해서만 설명 드리고 나머지 부분은 
+[TransferLearning](https://kerry-cho.github.io/TransferLearning-Libtorch/) 포스트를 참고 하시면 됩니다.
+
+
+loss함수
+
+```c++
+
+/*
+loss 함수는 Classcification처럼 CrossEntropy를 구하는데요. Segmentation의 경우 Pixel 전체를 비교 한다고 생각 하시면 됩니다.
+해당 함수는 LibTorch에 존재 하지 않아서 Network 출력 값을 log_softmax 취한 후 nll_loss2d 함수로 계산 합니다.
+*/
+torch::Tensor criterion(
+	std::unordered_map<std::string, torch::Tensor> inputs, torch::Tensor target)
+{
+	std::map<std::string, torch::Tensor> losses;
+
+	for (auto loss : inputs)
+	{
+		losses[loss.first] = torch::nll_loss2d(torch::log_softmax(loss.second, 1), target, {}, 1, 255);
+	}
+
+	if (losses.size() == 1)
+	{
+		return losses["out"];
+	}
+
+	return losses["out"] + 0.5 * losses["aux"];
+}
+```
+
+## Conclusion
+지금까지 LibTorch를 이용한 Segmentation 대해서 이야기를 하였습니다. 여기 까지 읽어 주신것을 감사 드립니다.
+Segmentation에 대해 이론적으로 접근 하기 보다 LibTorch를 활용 한 방법에 대해서 설명을 집중 하였습니다. 포스팅 초반에 Segmentation이라는 
+사전지식이 필요 하다고 했는데 실제 해당 내용에 대한 설명은 진행 하지 않은 것 같네요. 하지만 Segmentation이 무엇을 하는 것이란 걸
+알고 해당 포스트를 읽는 것이 중요 하다고 생각하였습니다.
+궁금 한 내용이나, 잘못 된 점이 있다면 답글에 남겨 주시면 감사 하겠습니다. 
+다음 이야기는 Microsoft에서 진행 하는 OpenSource 프로젝트중 VoTT에 대한 리뷰를 진행 하겠습니다(Visual Object Tagging Tool)
+감사합니다.
