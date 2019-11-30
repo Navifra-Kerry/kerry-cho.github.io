@@ -11,7 +11,7 @@ header:
 이번에 소개 해드릴 내용은 PyTorch의 C++ Frontend 인 LibTorch를 활용한 Image Segmentation을 하는 법에 대한 내용 입니다.
 모든 소스는 [여기](https://github.com/kerry-Cho/SemanticSegmentation-Libtorch) 저장소에 있습니다. 
 
-본 포스트를 읽기 전에 사전에 고전적인 Image Segmentation과 Image Processing에 대한 기초 지식이 필요 합니다. 
+본 포스트를 읽기 전 사전에 고전적인 Image Segmentation과 Image Processing에 대한 기초 지식이 필요 합니다. 
 해당 내용을 제가 설명 해드리는 것 보다, 전문적인 강의를 추천 드립니다. 
 
 Microsoft에서는 무료 강의와 도큐먼트를 잘만들기로 유명 한데요 (저만 그렇게 생각하나요?) 정말 이렇게 해도 되나 싶은데 
@@ -273,7 +273,7 @@ Convert Python Model [TransferLearning](https://kerry-cho.github.io/TransferLear
 
 # DataSet  
 
-데이터 셋읕 MS COCO 데이터 셋을 사용 하였습니다.
+데이터 셋은 MS COCO 데이터 셋을 사용 하였습니다.
 데이터 셋은 클래스는 메인 객체와 2개의 하위 객체를 포함 하고 있습니다. 시각화를 위해 UML을 그려 보았습니다.
 COCODataSet 클래스에서 멤버 클래스로 CocoDetection 클래스를 가지고  CocoDetection에서 CocoData셋의 JSON Parser인 CocoNote를 포함 하고 있습니다.
 
