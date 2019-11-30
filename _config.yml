@@ -15,7 +15,7 @@
 minimal_mistakes_skin    : "dark" # "air", "aqua", "contrast", "dark", "dirt", "neon", "mint", "plum", "sunrise"
 
 # Site Settings
-locale                   : "en-US,ko_KR"
+locale                   : "en-US"
 title                    : "Computer Vision Technology Blog"
 title_separator          : "-"
 name                     : "DaeHee"
