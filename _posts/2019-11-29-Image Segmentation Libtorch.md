@@ -472,7 +472,9 @@ torch::data::Example<> COCODataSet::get(size_t idx)
 	for (auto& obj : anno)
 	{
 		polys.push_back(obj._segmentation);//Annotation _segmentation정보만 가져 옵니다. PolyLines
-		cats.push_back(_cat_idx[obj._category_id]);//위 Polygon의 Category ID를 가져 옵니다.
+		cats.push_back(_cat_idx[obj._category_id]);//위 Polygon의 Category ID에 해당 하는 인덱스를 가져 옵니다.
+    //예제에서는 Category list가 {0 , 17 ,18} 로 입력 되었습니다.
+    //예를 들어 고양이 일 경우 Category ID가 17이기 때문에 index는 1이 입력 됩니다.
 	}
 
 	std::vector<torch::Tensor>  mask_tensors;
@@ -508,10 +510,10 @@ torch::data::Example<> COCODataSet::get(size_t idx)
 
 		float* data1 = mask_tensor.data_ptr<float>(); //해당 Tensor를 Dataptr 변경 후에 
 		for (size_t i = 0; i < shape; ++i) {
-			data1[i] = static_cast<float>(masks._mask[i] * cats[k]);//Category ID를 곱한 후 값을 복사 해 줍니다.
+			data1[i] = static_cast<float>(masks._mask[i] * cats[k]);//Category Index를 곱한 후 값을 복사 해 줍니다.
 		}
 
-		//Mask는 해당 Category 영역은 1, 아닐 경우 0 이기 때문에 Category ID 곱하면 고양이 일 경우 17로 변경 되고
+		//Mask는 해당 Category 영역은 1, 아닐 경우 0 이기 때문에 Category ID 곱하면 개 일 경우 2로 변경 되고
 		//아닌 영역은 0으로 채워 집니다.
 
 		//Mask_tensor를 Category에 Mapping 후에 이미지 사이와 동일한 Matrix 형태로 변경 합니다
