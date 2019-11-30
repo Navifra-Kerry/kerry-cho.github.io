@@ -26,7 +26,7 @@ PyTorch 포스팅을 하면서 Microsoft에서 만든 무료 교육을 추천 �
 딥러닝을 이용한 Python 예제는 [여기](https://github.com/mrgloom/awesome-semantic-segmentation)에서 찾아 보실 수 있습니다. 
 해당 사이트에 많은 예제들이 있지만 저는 PyTorch를 사용 했기 때문에 TorchVision Reference를 참고 하여 LibTorch 만들어 보았습니다.
 
-그리고 데이터 셋의 소스 [이친구](https://github.com/lsrock1/maskrcnn_benchmark.cpp)의 소스를 참고해서 제가 사용하기 편한 방법으로 변경 하였습니다.
+그리고 데이터 셋의 소스는 [이친구](https://github.com/lsrock1/maskrcnn_benchmark.cpp)의 소스를 참고해서 제가 사용하기 편한 방법으로 변경 하였습니다.
 위의 친구가 지금 열심히 MaskRCNN LibTorch 버전을 만들고 있던데 다 만들어 지면 저것 또한 리뷰를 하는 시간을 가져 볼께요...아니면 제가 만들어서!!?
 
 # Install Dependency  
@@ -272,3 +272,317 @@ std::unordered_map<std::string, torch::Tensor> SegmentationModelImpl::forward(to
 Convert Python Model [TransferLearning](https://kerry-cho.github.io/TransferLearning-Libtorch/) 포스트를 참고 하시면 됩니다.
 
 # DataSet  
+
+데이터 셋읕 MS COCO 데이터 셋을 사용 하였습니다.
+데이터 셋은 클래스는 메인 객체와 2개의 하위 객체를 포함 하고 있습니다. 시각화를 위해 UML을 그려 보았습니다.
+COCODataSet 클래스에서 멤버 클래스로 CocoDetection 클래스를 가지고  CocoDetection에서 CocoData셋의 JSON Parser인 CocoNote를 포함 하고 있습니다.
+
+<img src="{{ site.url }}{{ site.baseurl }}/assets/images/Segmentation/DataSet.png" alt="DataSet">
+
+COCODataSet 구조  
+```c++
+/*
+COCODataSet은 객체 생성시 4개의 입력을 받습니다.
+annFile  = annotation File의 전체 경로
+root	 = 이미지 파일이 있는 경로 ,annotation에는 이미지 파일 명만 표시 되어 있습니다.
+cat_list = 학습 시키길 원하는 카테고리 정보 0은 Background 이며 , 숫자로 입력됩니다
+		   해당 숫자는 MS COCO 2017 카테고리 정보를 참고 하세요.
+remove_images_without_annotations = 주석이 없는 이미지의 삭제 여부
+
+Example
+auto val_dataset = COCODataSet(data_dir + "annotations\\instances_val2017.json", data_dir + "val2017", true, { 0,17,18 })
+	.map(torch::data::transforms::Stack<>());
+const size_t va_dataset_size = val_dataset.size().value();
+
+*/
+
+
+class COCODataSet : public torch::data::Dataset<COCODataSet>
+{
+private:
+
+	std::vector<torch::Tensor> states, labels;
+	size_t ds_size;
+	torch::data::transforms::Normalize<> normalizeChannels;
+public:
+	COCODataSet(std::string annFile, std::string root, bool remove_images_without_annotations 
+		, std::vector<int> cat_list = std::vector<int>{});
+
+	torch::data::Example<> get(size_t index) override;
+	torch::optional<size_t> size() const override;
+
+	rcnn::data::COCODetection _coco_detection;
+	std::vector<int> _cat_list;
+	std::map<int, int> _cat_idx;
+};
+// 하위 객체 설명 후에 더 자세히 설명 하겠습니다.
+```
+
+COCODetection
+```c++
+
+/*
+COCODetection 의 경우 생성시 2개의 입력을 받습니다.
+annFile  = annotation File의 전체 경로
+root	 = 이미지 파일이 있는 경로 ,annotation에는 이미지 파일 명만 표시 되어 있습니다.
+*/
+namespace rcnn {
+namespace data 
+{
+
+class COCODetection : public torch::data::datasets::Dataset<COCODetection, torch::data::Example<cv::Mat, std::vector<Annotation>>> 
+{
+
+public:
+	COCODetection(std::string root, std::string annFile/*TODO transform=*/);
+	torch::data::Example<cv::Mat, std::vector<Annotation>> get(size_t index) override;
+	torch::optional<size_t> size() const override;
+
+	std::string _root;
+	COCONote _coco;
+	std::vector<int> _ids;
+
+	friend std::ostream& operator << (std::ostream& os, const COCODetection& bml);
+};
+
+}//data
+}//rcnn
+
+/*
+이미지파일의 인덱스 정보를 가져와 해당 이미지의 Annotation 정보와 이미지파일을 로딩 하여 반환 합니다.
+*/
+torch::data::Example<cv::Mat, std::vector<Annotation>> COCODetection::get(size_t index) 
+{
+	int img_id = _ids.at(index);
+	std::vector<int64_t> ann_ids = _coco.GetAnnIds(std::vector<int>{img_id}); //Image ID
+	std::vector<Annotation> target = _coco.LoadAnns(ann_ids); // Load Anotations
+	std::string path(_coco.LoadImgs(std::vector<int>{img_id})[0]._file_name); //LoadImage
+	cv::Mat img = cv::imread(_root + "/" + path, cv::IMREAD_COLOR);
+
+	if (img.rows == 0)
+	{
+		std::cout << "The image does not exist." << std::endl;
+		std::cout << _root + "/" + path << std::endl;
+		quick_exit(1);
+	}
+
+
+	torch::data::Example<cv::Mat, std::vector<Annotation>> value{ img, target };
+	return value;
+}
+
+/*
+전체 데이터 사이즈를 반환
+*/
+torch::optional<size_t> COCODetection::size() const
+{
+	return _ids.size();
+}
+```
+
+COCONote
+```c++
+
+/*
+Poco::JSON의 JSON을 사용해 annotation 정보를 읽어 드리는 클래스 입니다.
+Poco는 해당 프로젝트를 위해 직접 빌드 하여 사용 하였습니다.
+기회가 된다면 자세히 리뷰를 하는 포스팅을 진행 하겠습니다.
+*/
+struct COCONote
+{
+	COCONote(std::string annotation_file);
+	COCONote();
+
+	void Parse();
+	void Parse(std::string annotation_file);
+
+	std::vector<int64_t> GetAnnIds(const std::vector<int> imgIds = std::vector<int>{}, const std::vector<int> catIds = std::vector<int>{}, const std::vector<float> areaRng = 
+...
+};
+
+/*
+직접 Parsing을 진행 하는 함수 입니다.
+*/
+void COCONote::Parse()
+{
+#ifdef _DEBUG
+	std::cout << "Parse...\n";
+#endif
+	if(_cocodataset->has("annotations"))//annotations 정보가 있는지 확인 합니다.
+	{
+		assert(_cocodataset->get("annotations").isArray()); //annotations이 Array객체가 아닐 경우 예외를 발생 시킵니다.
+
+		Array::Ptr a = _cocodataset->get("annotations").extract<Array::Ptr>(); //annotations 을 ArryPtr 타입으로 변환 합니다.
+
+		for(int i = 0; i < a->size(); i++)//Array Size 만큼 for를 진행 합니다.
+		{
+			Object::Ptr j = a->get(i).extract<Object::Ptr>(); //각 인덱스 별로 Object::Ptr변환 합니다.
+
+			if(_imgToAnns.count(j->get("image_id").convert<int>()))//이미지의 id를 가져와 _imgToAnns에 있는지 비교합니다.
+			{ // if it exists
+				_imgToAnns[j->get("image_id").convert<int>()].emplace_back(j);// 존재 할경우에 해당 Key값에 집어 넣습니다.
+			}
+			else
+			{
+				_imgToAnns[j->get("image_id").convert<int>()] = std::vector<Annotation> {Annotation(j)};// 없을 경우에는 새로운 Annotation만들어 _imgToAnns에 담습니다.
+			}
+			
+			_anns[static_cast<int64_t>(j->get("id").convert<int64_t>())] = Annotation(j);
+		}
+	}
+
+	....
+}
+```
+
+* Data Arguments  
+이미지와 Annotation 정보는 COCODataSet Get 함수가 호출 될시에 진행 됩니다.
+
+```c++
+
+/*
+함수가 상당히 길지만 상세하게 설명 하고 주의 깊게 보는게 좋을 것 같습니다.
+*/
+torch::data::Example<> COCODataSet::get(size_t idx)
+{
+	auto coco_data = _coco_detection.get(idx);
+	cv::Mat img = coco_data.data;
+	
+	//현재 idx Annotation 정보를 가져와 내가 학습 하고자 하는 카테고리를 제외한 정보는 삭제 합니다.
+
+	std::vector<Annotation> anno = coco_data.target;
+	for (auto ann = anno.begin(); ann != anno.end();) 
+	{
+		if (std::find(_cat_list.begin(), _cat_list.end(), ann->_category_id) == _cat_list.end())
+		{
+			anno.erase(ann);
+		}
+		else
+		{
+			ann++;
+		}
+	}
+
+	//Annotation 정보는 Polygon 형태의 자료형으로 되어 있습니다. 해당 정보를 
+	// H * W 형태의 Matrix 타입의 구조로 타입 변환을 진행 하는 함수 입니다.
+	// Matrix 정보에서 해당 카테고리 영역은 값이 1이고 , 나머지는 0의 값이 채워 집니다.
+	// COCO DataSet의 Polygon 정보는  x1,y1,x2,y2,x3,y3,xn,yn의 형태로 double Array 타입으로 되어 있습니다.
+	std::vector<int> cats;
+	std::vector<std::vector<std::vector<double>>> polys;
+	for (auto& obj : anno)
+	{
+		polys.push_back(obj._segmentation);//Annotation _segmentation정보만 가져 옵니다. PolyLines
+		cats.push_back(_cat_idx[obj._category_id]);//위 Polygon의 Category ID를 가져 옵니다.
+	}
+
+	std::vector<torch::Tensor>  mask_tensors;
+
+	//이미지와 마스크의 입력 사이즈는 480으로 변경 하기위한 Base Size 입니다.
+	int base_size = 480;
+
+	//Polygon To Mask Tensors
+	for (int k= 0; k< polys.size(); k++)
+	{
+		//Polygon의 사이즈가 0 일 경우 리턴 합니다.
+		if (polys[k].size() == 0) continue;
+		
+		//현재 로딩 된 이미지와 Base사이지를 비교해 scale 값을 구한 후 Polygon을 Resize 해줍니다.		
+		transforms::polygon::Resize((double)base_size / (double)img.cols, (double)base_size / (double)img.rows, polys[k]);
+
+
+		//coco API를 사용 하기위해서 Polygon 정보를 coco API 에서 사용하는 자료 형으로 변환 후 
+		//Mask 정보를 리턴 받습니다.
+		auto frPoly = coco::frPoly(polys[k], base_size, base_size);
+
+		coco::RLEs Rs(1);
+
+		coco::rleFrString(Rs._R, (char*)frPoly[0].counts.c_str(), std::get<0>(frPoly[0].size), std::get<1>(frPoly[0].size));
+		coco::siz h = Rs._R[0].h, w = Rs._R[0].w, n = Rs._n;
+		coco::Masks masks = coco::Masks(base_size, base_size, 1);
+
+		coco::rleDecode(Rs._R, masks._mask, n);
+
+		//coco API 변환한 Mask Size 만큼 비어 있는 Tensor 생성 합니다.
+		int shape = h * w * n;
+		torch::Tensor mask_tensor = torch::empty({ shape });
+
+		float* data1 = mask_tensor.data_ptr<float>(); //해당 Tensor를 Dataptr 변경 후에 
+		for (size_t i = 0; i < shape; ++i) {
+			data1[i] = static_cast<float>(masks._mask[i] * cats[k]);//Category ID를 곱한 후 값을 복사 해 줍니다.
+		}
+
+		//Mask는 해당 Category 영역은 1, 아닐 경우 0 이기 때문에 Category ID 곱하면 고양이 일 경우 17로 변경 되고
+		//아닌 영역은 0으로 채워 집니다.
+
+		//Mask_tensor를 Category에 Mapping 후에 이미지 사이와 동일한 Matrix 형태로 변경 합니다
+		// h * w 
+		mask_tensor = mask_tensor.reshape({ static_cast<int64_t>(n),static_cast<int64_t>(w),
+			static_cast<int64_t>(h) }).permute({ 2, 1, 0 }).squeeze(2);//fortran order h, w, n
+
+		mask_tensors.push_back(mask_tensor);
+	}
+	
+	// mask_tensors는 Vector를 Tensor Type로 변경 합니다.
+	// n * h * w 형태로 변환 됩니다.
+	auto mask_tensor = torch::stack(mask_tensors); 
+
+	//n * h * w 형태의 Tensor를 하나로 합치게 됩니다.
+	//예 4 * h * w -> h * w;
+	// 동일한 영역의 값을 취하는 게 아니라 Max 값만 가져 옵니다.
+	// 즉 서로 다른 카테고리 마스크를 하나로 합칩니다.
+	torch::Tensor target, _;
+	std::tie(target, _) = torch::max(mask_tensor, 0);
+	
+	//현재 로딩 된 이미지를 Resizng 합니다.
+	cv::resize(img, img, cv::Size(base_size, base_size));
+
+
+	//Random 값이 2의 배수일 경우 이미지와 target을 Horizental Flip을 진행 합니다.
+	if (die(mersenne) % 2 == 0)
+	{
+		target = target.flip({ 1 });
+		cv::flip(img, img, 1);
+	}
+
+	torch::Tensor img_tensor = torch::from_blob(img.data, { img.rows, img.cols, 3 }, torch::kByte);
+	img_tensor = img_tensor.permute({ 2, 0, 1 });
+
+	//이미지를 normalize 합니다.
+	img_tensor = normalizeChannels(img_tensor);
+
+	// 아래 코드는 이미와 Tensor가 제대로 입력이 되는지 확인 하기 위한 Debug  코드 입니다.
+#if 0 // Debug Data Inputs
+	std::cout << img_tensor.sizes() << std::endl;
+	std::cout << target.sizes() << std::endl;
+
+	cv::Mat bin_mask = cv::Mat::eye(target.size(0), target.size(1), CV_8UC1);
+	target = target.clamp(0, 255).to(torch::kU8);
+	target = target.to(torch::kCPU);
+	std::memcpy(bin_mask.data, target.data_ptr(), sizeof(torch::kU8) * target.numel());
+
+	uchar* data_ptr = (uchar*)bin_mask.data;
+
+	for (int y = 0; y < bin_mask.rows; y++)
+	{
+		for (int x = 0; x < bin_mask.cols; x++)
+		{
+			if (data_ptr[y * bin_mask.cols + x] == 0)
+			{
+				continue;
+			}
+			else
+			{
+				data_ptr[y * bin_mask.cols + x]  = 255;
+			}
+		}
+	}
+
+	cv::imshow("Image", bin_mask);
+	cv::imshow("Image2", img);
+	cv::waitKey(0);
+#endif
+
+	//Image와 Tensor를 Tuple 형태로 반환 합니다.
+	return { img_tensor.clone(), target.clone() };
+}
+```
