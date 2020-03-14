@@ -1,7 +1,7 @@
 ---
 title: "TransferLearning Libtorch"
 use_math: true
-tags: [PyTorch, Libtorch, TransferLearning, DeepLearning]
+tags: [Libtorch]
 header:
 ---
 

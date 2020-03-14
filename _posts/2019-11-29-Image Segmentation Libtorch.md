@@ -1,7 +1,7 @@
 ---
 title: "Image Segmentation Libtorch"
 use_math: true
-tags: [PyTorch, Libtorch, Segmentation, DeepLearning]
+tags: [Libtorch]
 header:
 ---
 
