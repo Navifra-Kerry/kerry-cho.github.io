@@ -27,7 +27,7 @@ F1 누른 후 TerminalSelect:Default Shell을 선택 하고 Git Bash를 선택 �
 
 <img src="{{ site.url }}{{ site.baseurl }}/assets/images/bash/4.png" alt="4">
 
-그 후 터미널에 아래의 명령어를 입력 해주세요 (Git 설치 되어 있지 않다면 [여기](https://github.com/Bash-it/bash-it)에서 Git을 다운 받아 설치 해주세요.)
+그 후 터미널에 아래의 명령어를 입력 해주세요 (Git 설치 되어 있지 않다면 [여기](https://git-scm.com/download/win)에서 Git을 다운 받아 설치 해주세요.)
 
 ```
 git clone --depth=1 https://github.com/Bash-it/bash-it.git ~/.bash_it
