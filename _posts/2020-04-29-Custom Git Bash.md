@@ -77,7 +77,7 @@ Brunton 테마가 적용된 콘솔의 모습니다.
 bash-it help completions
 ```
 
-<img src="{{ site.url }}{{ site.baseurl }}/assets/images/bash/12.png" alt="12">
+<img src="{{ site.url }}{{ site.baseurl }}/assets/images/bash/12.png" alt="12">  
 저는 아무것도 활성화 되어 있지 않네요.  
 활성화 하는 방법은 아래 명령어와 같이 입력합니다.
 
@@ -91,4 +91,4 @@ bash-it enable completion git
 
 <img src="{{ site.url }}{{ site.baseurl }}/assets/images/bash/13.png" alt="13">
 
-지금 까지 Gti Bash Cutom Theme 적용 방법에 대한 내용에 대해 알아 봤습니다. 감사합니다.(참고로 리눅스에도 동일하게 적용 가능합니다.)
+지금 까지 Gti Bash Cutom Theme 적용 방법에 대한 내용에 대해 알아 봤습니다. (참고로 리눅스에도 동일하게 적용 가능합니다.)
