@@ -17,7 +17,7 @@ header:
 
 Theme적용은 방법은 Open Source 인 Bash-it 사용 하겠습니다.  
 이 포스트는 2020.4.29에 작성 되었기 때문에 많은 시간이 경과 했을 경우 [여기](https://github.com/Bash-it/bash-it)를 참고하세요.  
-먼저 VS Code와 같이 사용 하기 위해 먼저 VS Code 실행 합니다.
+VS Code와 같이 사용 하기 위해 VS Code 실행 합니다.
 
 F1 누른 후 TerminalSelect:Default Shell을 선택 하고 Git Bash를 선택 후 New Terminal를 열어 주세요.  
 그러면 아래와 같이 Git Bash가 실행 된 모습을 볼 수 있을 겁니다.  
