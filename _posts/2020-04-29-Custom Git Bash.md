@@ -43,7 +43,7 @@ git clone --depth=1 https://github.com/Bash-it/bash-it.git ~/.bash_it
 ```
 
 <img src="{{ site.url }}{{ site.baseurl }}/assets/images/bash/6.png" alt="6">
-설치시에 누르면 파일의 경로를 찾을 수 없다는 말이 나오는데 일단은 무시하고 진행 합니다.
+설치 시 파일의 경로를 찾을 수 없다고 할수 있는데 무시하고 진행 하세요.
 
 설치가 완료 되면 새로운 Terminal을 열어 주세요.
 
