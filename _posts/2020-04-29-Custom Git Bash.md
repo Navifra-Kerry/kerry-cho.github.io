@@ -15,7 +15,7 @@ header:
 결과는 아래와 같습니다. Visual Studio Code와 Git Bash Shell이 적용 된 모습니다.  
 <img src="{{ site.url }}{{ site.baseurl }}/assets/images/bash/result.png" alt="result">
 
-Theme적용은 방법은 Open Source 인 Bash-it 사용 하겠습니다.  
+Theme적용 방법은 Open Source 인 Bash-it 사용 하겠습니다.  
 이 포스트는 2020.4.29에 작성 되었기 때문에 많은 시간이 경과 했을 경우 [여기](https://github.com/Bash-it/bash-it)를 참고하세요.  
 VS Code와 같이 사용 하기 위해 VS Code 실행 합니다.
 
@@ -50,6 +50,7 @@ git clone --depth=1 https://github.com/Bash-it/bash-it.git ~/.bash_it
 Git Bash의 테마가 변경 된 것을 확인 할 수 있습니다.  
 <img src="{{ site.url }}{{ site.baseurl }}/assets/images/bash/7.png" alt="7">
 
+테마 변경 방법은 아래와 같습니다.  
 ```
 윈도우 탐색기를 이용하여 아래의 경로에서 .bashrc 파을은 메모장으로 열어 줍니다.
 %UserProfile%
