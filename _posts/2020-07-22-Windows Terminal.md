@@ -60,6 +60,8 @@ Install-Module oh-my-posh -Scope CurrentUser
  ```
 
 사용자 지정 Theme를 사용 하기 위한 Module을 설치 합니다.
+
+
  ```Powershell
  Install-Module -Name PSReadLine -Scope CurrentUser -Force -SkipPublisherCheck
  ```
@@ -67,7 +69,8 @@ Install-Module oh-my-posh -Scope CurrentUser
  모든 모듈의 설치가 완료 되면 PowerShell profile Script를 작성합니다.
  PowerShell profile Script란 PowerShell이 처음 실행 될 때 한번 실행 되는 Script로 Custom Theme를 설정 하기 위한 명령어를 작성해 놓습니다.
 
- ```Powershell
+
+ ```powershell
  아래의 명령어 실행 후 노트 패드에 스크립트를 작성해 넣습니다.
  notepad $PROFILE
 
