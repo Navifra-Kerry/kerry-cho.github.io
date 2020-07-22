@@ -46,7 +46,7 @@ Custom Theme의 경우 Powershell 통해 설정이 가능 한데요 Powershell�
 
 아래의 명령을 실행해 현재 사용자의 원격 다운로드 권한을 제한을 해제 합니다.
 
-```Powershell
+```
 Set-ExecutionPolicy RemoteSigned
 ```
 
@@ -54,7 +54,7 @@ Set-ExecutionPolicy RemoteSigned
  _Windows는 패키지 매니저가 너무 많아 혼란 스럽긴 합니다._
 
 
- ```Powershell
+ ```
 Install-Module posh-git -Scope CurrentUser
 Install-Module oh-my-posh -Scope CurrentUser
  ```
@@ -62,7 +62,7 @@ Install-Module oh-my-posh -Scope CurrentUser
 사용자 지정 Theme를 사용 하기 위한 Module을 설치 합니다.
 
 
- ```Powershell
+ ```
  Install-Module -Name PSReadLine -Scope CurrentUser -Force -SkipPublisherCheck
  ```
 
@@ -70,7 +70,7 @@ Install-Module oh-my-posh -Scope CurrentUser
  PowerShell profile Script란 PowerShell이 처음 실행 될 때 한번 실행 되는 Script로 Custom Theme를 설정 하기 위한 명령어를 작성해 놓습니다.
 
 
- ```powershell
+ ```
  아래의 명령어 실행 후 노트 패드에 스크립트를 작성해 넣습니다.
  notepad $PROFILE
 
@@ -92,7 +92,7 @@ Set-Theme Paradox
  Windows termianl에서 Setting해 Setting.json 파일에서 
  Powershell 항목을 아래와 같게 변경 합니다. 
 
- ```
+ ```json
  {
     // Make changes here to the powershell.exe profile.
     "guid": "{61c54bbd-c2c6-5271-96e7-009a87ff44bf}",
