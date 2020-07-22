@@ -42,7 +42,7 @@ Windows terminal의 경우 Microsoft의 앱스토에서 무료로 설치가 가�
 설치가 완료 되면 아래와 같이 Windows termianl을 사용 할 수 있습니다.
 
 # Windows terminal custom theme 설정
-Custom Theme의 경우 Powershell 통해 설정이 가능 한데요 Powershell의 경우 보완 관련 설정을 해주지 않을 경우 사용 하지 못하는 기능이 있습니다. 
+Custom Theme의 경우 Powershell을 통해 설정이 가능 한데요 Powershell의 경우 보완 관련 설정을 해주지 않을 경우 사용 하지 못하는 기능이 있습니다. 
 
 아래의 명령을 실행해 현재 사용자의 원격 다운로드 권한을 제한을 해제 합니다.  
 
@@ -150,4 +150,4 @@ Visual Studio 경우 2019 버전 [16.3](https://devblogs.microsoft.com/visualstu
 
   <img src="{{ site.url }}{{ site.baseurl }}/assets/images/windowsterminal/visualresult.gif" alt="visualresult">
 
-  지금 까지 WWindows terminal에 Custom theme르 적용 하는 방법에 대해 알아 보았습니다. 
+  지금 까지 Windows terminal에 Custom theme르 적용 하는 방법에 대해 알아 보았습니다. 
