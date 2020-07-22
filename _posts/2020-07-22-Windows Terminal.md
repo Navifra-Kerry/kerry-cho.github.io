@@ -143,7 +143,7 @@ Visual Studio 경우 2019 버전 [16.3](https://devblogs.microsoft.com/visualstu
 "Cascadia Code PL" 글꼴로 선택 하세요.
 ```
 
- <img src="{{ site.url }}{{ site.baseurl }}/assets/images/windowsterminal/vscoderesult.gif" alt="vscoderesult">
+ <img src="{{ site.url }}{{ site.baseurl }}/assets/images/windowsterminal/visualsetting.gif" alt="visualsetting">
 
 
  적용이 완료 되면 Visual Studio 에서도 아래와 같이 Custom Console창을 사용 가능 합니다.
