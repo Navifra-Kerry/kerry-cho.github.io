@@ -44,33 +44,39 @@ Windows terminal의 경우 Microsoft의 앱스토에서 무료로 설치가 가�
 # Windows terminal custom theme 설정
 Custom Theme의 경우 Powershell 통해 설정이 가능 한데요 Powershell의 경우 보완 관련 설정을 해주지 않을 경우 사용 하지 못하는 기능이 있습니다. 
 
-아래의 명령을 실행해 현재 사용자의 원격 다운로드 권한을 제한을 해제 합니다.
+아래의 명령을 실행해 현재 사용자의 원격 다운로드 권한을 제한을 해제 합니다.  
 
-```
+
+```powershell
 Set-ExecutionPolicy RemoteSigned
 ```
 
+
 다음으로 Git 과 MyPos 라는 Nuget Module을 설치 합니다.  
- _Windows는 패키지 매니저가 너무 많아 혼란 스럽긴 합니다._
+ _Windows는 패키지 매니저가 너무 많아 혼란 스럽긴 합니다._  
 
 
- ```
+
+ ```powershell
 Install-Module posh-git -Scope CurrentUser
 Install-Module oh-my-posh -Scope CurrentUser
  ```
 
-사용자 지정 Theme를 사용 하기 위한 Module을 설치 합니다.
+사용자 지정 Theme를 사용 하기 위한 Module을 설치 합니다.  
 
 
- ```
+
+ ```powershell
  Install-Module -Name PSReadLine -Scope CurrentUser -Force -SkipPublisherCheck
  ```
 
+
  모든 모듈의 설치가 완료 되면 PowerShell profile Script를 작성합니다.
- PowerShell profile Script란 PowerShell이 처음 실행 될 때 한번 실행 되는 Script로 Custom Theme를 설정 하기 위한 명령어를 작성해 놓습니다.
+ PowerShell profile Script란 PowerShell이 처음 실행 될 때 한번 실행 되는 Script로 Custom Theme를 설정 하기 위한 명령어를 작성해 놓습니다.  
 
 
- ```
+
+ ```powershell
  아래의 명령어 실행 후 노트 패드에 스크립트를 작성해 넣습니다.
  notepad $PROFILE
 
