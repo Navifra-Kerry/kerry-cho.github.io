@@ -22,7 +22,7 @@ Git Bash를 사용해서 많은 일을 진행 했습니다.
 
 그 이유는 Git Bash의 경우 Custom이 가능 하고 자동 완성, vim 등 Console 작업을 하는데 도움을 주는 소소한 유틸들 때문이 였습니다. 
 
-Windows의 Terminal의 경우 위에서 말한 모든 내용들이 가능하고 더욱 강력 한 기능들을 포함 하고 있습니다. (물론 파워쉘에서...)  
+Windows Terminal의 경우 위에서 말한 모든 내용들이 가능하고 더욱 강력 한 기능들을 포함 하고 있습니다. (물론 파워쉘에서...)  
 
 그 사용 방법들을 공유 하고자 합니다.
 오늘 공유 드릴 내용은 아래와 같습니다.
@@ -33,18 +33,16 @@ Windows의 Terminal의 경우 위에서 말한 모든 내용들이 가능하고 
 - [Visual Studio terminal 설정](#Visual-Studio-terminal-설정)
 
 # Windows terminal 설치
-Windows terminal의 경우 Microsoft의 앱스토에서 무료로 설치가 가능 합니다.  
+Windows terminaldml 경우 Microsoft 앱스토에서 무료로 설치가 가능 합니다.  
 설치를 하기 위해서는 Microsoft의 계정이 필요합니다.  
 
 아래의 링크를 접속 하여 설치를 진행 해주세요.
 [설치하기](https://www.microsoft.com/ko-kr/p/windows-terminal/9n0dx20hk701?activetab=pivot:overviewtab)
 
-설치가 완료 되면 아래와 같이 Windows termianl을 사용 할 수 있습니다.
-
 # Windows terminal custom theme 설정
-Custom Theme의 경우 Powershell을 통해 설정이 가능 한데요 Powershell의 경우 보완 관련 설정을 해주지 않을 경우 사용 하지 못하는 기능이 있습니다. 
+Custom Theme의 경우 Powershell을 통해 설정이 가능 한데요 Powershell의 경우 보완 관련 설정을 해주지 않을 경우 사용 하지 못하는 명령어가 있습니다. 
 
-아래의 명령을 실행해 현재 사용자의 원격 다운로드 권한을 제한을 해제 합니다.  
+아래의 명령을 실행 해 현재 사용자의 원격 다운로드 권한을 제한을 해제 합니다.  
 
 
 ```powershell
@@ -52,7 +50,7 @@ Set-ExecutionPolicy RemoteSigned
 ```
 
 
-다음으로 Git 과 MyPos 라는 Nuget Module을 설치 합니다.  
+다음으로 Git 과 oh-my-posh 라는 Nuget Module을 설치 합니다.  
  _Windows는 패키지 매니저가 너무 많아 혼란 스럽긴 합니다._  
 
 
@@ -95,8 +93,8 @@ Set-Theme Paradox
 
  복사가 완료 되면 Windows terminal 사용자 설정 파일을 수정해 Theme를 적용 합니다.
 
- Windows termianl에서 Setting해 Setting.json 파일에서 
- Powershell 항목을 아래와 같게 변경 합니다. 
+ Windows termianl의 Setting.json 파일에서 
+ Powershell 항목을 아래와 같이 변경 합니다. 
 
  ```json
  {
@@ -115,9 +113,11 @@ Set-Theme Paradox
  <img src="{{ site.url }}{{ site.baseurl }}/assets/images/windowsterminal/result.gif" alt="result">
 
 # VS Code Default terminal 설정
-VS Code에 Custom termianl을 적용 하게 위해서는 이전에 포스트 하였던 Git Bash와 동일 합니다. 또한 Powshell에서만 사용 가능 합니다.
+VS Code에 Custom termianl을 적용 하게 위해서는 Git Bash 적용 방법과 비슷합니다. Powshell에서만 사용 가능 합니다.
+- WSL 시스템의 Linux console 적용이 가능 합니다. 
 
-VSCode를 실행 한뒤 F1번 입력 후 Default terminal을 Windows Powershell로 설정 합니다. 다음으로 terminal에서 사용 할 글꼴을 설정 해줍니다.
+VSCode를 실행 하고 나서 F1 -> Default terminal을 Windows Powershell로 설정 합니다.  
+그 다음 terminal에서 사용 할 글꼴을 설정 해줍니다.
 
  <img src="{{ site.url }}{{ site.baseurl }}/assets/images/windowsterminal/default.gif" alt="default">
 
