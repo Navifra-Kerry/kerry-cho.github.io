@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+Sitemap: http://blog.kerrycho.com/sitemap-0.xml
+Host: blog.kerrycho.com
