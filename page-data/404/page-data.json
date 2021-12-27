@@ -1,1 +1,5 @@
-{"componentChunkName":"component---src-pages-404-jsx","path":"/404/","result":{"pageContext":{"paginatePostsPage":true,"basePath":"/","services":{"algolia":false,"mailchimp":false,"disqus":true},"siteUrl":null,"darkMode":true}},"staticQueryHashes":["1434057858","1992822086"]}
+{
+    "componentChunkName": "component---src-pages-404-jsx",
+    "path": "/404/",
+    "result": {"pageContext":{"paginatePostsPage":true,"basePath":"/","services":{"algolia":false,"mailchimp":false,"disqus":true},"siteUrl":null,"darkMode":true}},
+    "staticQueryHashes": ["1434057858","1992822086"]}
